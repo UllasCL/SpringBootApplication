@@ -2,15 +2,16 @@ package com.example.Hello.dto;
 
 import lombok.*;
 
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @ToString
 public class StudentInfoDto {
-    private int id;
-    private String usn;
-    private String name;
-    private String college;
-    private String address;
+     int id;
+    String usn;
+    String name;
+    String college;
+    String address;
 }

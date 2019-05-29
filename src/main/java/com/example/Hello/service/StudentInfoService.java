@@ -1,14 +1,15 @@
 package com.example.Hello.service;
 
+import com.example.Hello.dto.StudentInfoDto;
 import com.example.Hello.model.StudentInfo;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface StudentInfoService {
-    List<StudentInfo> getAllStudentsInfo();
+    List<StudentInfoDto> getAllStudentsInfo();
 
-    Optional<StudentInfo> getStudentInfo(Integer id);
+    Optional<StudentInfoDto> getStudentInfo(Integer id);
 
     Optional<StudentInfo> updateStudentInfo(Integer id, StudentInfo studentInfo);
 
@@ -16,5 +17,5 @@ public interface StudentInfoService {
 
     String deleteStudentInfo(Integer id);
 
-    long count();
+    String count();
 }

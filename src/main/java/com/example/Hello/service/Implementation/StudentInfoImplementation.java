@@ -1,6 +1,10 @@
 package com.example.Hello.service.Implementation;
 
+import com.example.Hello.constants.ResponseConstants;
+import com.example.Hello.dto.StudentInfoDto;
+import com.example.Hello.dto.response.StudentRespondeDto;
 import com.example.Hello.exception.StudentException;
+import com.example.Hello.mapper.StudentInfoDtoStudentInfoMapper;
 import com.example.Hello.model.StudentInfo;
 import com.example.Hello.repository.StudentInfoRepo;
 import com.example.Hello.service.StudentInfoService;
@@ -9,8 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Transactional
 @Service
@@ -18,20 +24,29 @@ public class StudentInfoImplementation implements StudentInfoService {
     @Autowired
     StudentInfoRepo studentInfoRepo;
 
+    @Autowired
+    StudentInfoDtoStudentInfoMapper studentInfoDtoStudentInfoMapper;
+
+    @Autowired
+    ResponseConstants responseConstants;
+
     /**
      * list of all students
      *
      * @return
      */
     @Override
-    public List<StudentInfo> getAllStudentsInfo() {
+    public List<StudentInfoDto> getAllStudentsInfo() {
         try {
             List<StudentInfo> studentInfoArrayList = studentInfoRepo.findAll();
             if (studentInfoArrayList.isEmpty()) {
                 LogUtils.getInfoLogger().info("No result");
                 return null;
             } else {
-                return studentInfoArrayList;
+                LogUtils.getInfoLogger().info("StudentsInfo found : {}",studentInfoArrayList.toString());
+                return studentInfoArrayList.stream()
+                        .map(studentInfo1 -> studentInfoDtoStudentInfoMapper.studentInfoToStudentInfoDto(studentInfo1))
+                        .collect(Collectors.toList());
             }
         } catch (Exception exception) {
             throw new StudentException(exception.getMessage());
@@ -45,15 +60,16 @@ public class StudentInfoImplementation implements StudentInfoService {
      * @return
      */
     @Override
-    public Optional<StudentInfo> getStudentInfo(Integer id) {
+    public Optional<StudentInfoDto> getStudentInfo(Integer id) {
         try {
-            Optional studentInfo = studentInfoRepo.findById(id);
+            Optional<StudentInfo> studentInfo = studentInfoRepo.findById(id);
             if (studentInfo.isPresent()) {
-                LogUtils.getInfoLogger().info("result found");
-                return studentInfo;
+                Optional<StudentInfoDto> studentInfoDto = studentInfo.map(studentInfo1 -> studentInfoDtoStudentInfoMapper.studentInfoToStudentInfoDto(studentInfo1));
+                LogUtils.getInfoLogger().info("result found"+studentInfoDto.toString());
+                return Optional.of(studentInfoDtoStudentInfoMapper.studentInfoToStudentInfoDto(studentInfo.get()));
             } else {
                 LogUtils.getInfoLogger().info("No result");
-                return null;
+                return Optional.empty();
             }
         } catch (Exception exception) {
             throw new StudentException(exception.getMessage());
@@ -98,9 +114,8 @@ public class StudentInfoImplementation implements StudentInfoService {
         } catch (Exception exception) {
             throw new StudentException(exception.getMessage());
         }
-        return "Student info added";
+        return "Student info added successfully"+responseConstants.SUCCESS_MESSAGE;
     }
-
     /**
      * delete student info
      *
@@ -115,7 +130,7 @@ public class StudentInfoImplementation implements StudentInfoService {
         } catch (Exception exception) {
             throw new StudentException(exception.getMessage());
         }
-        return "Student info deleted";
+        return responseConstants.SUCCESS_MESSAGE;
     }
 
     /**
@@ -124,13 +139,13 @@ public class StudentInfoImplementation implements StudentInfoService {
      * @return
      */
     @Override
-    public long count() {
+    public String count() {
         long count = studentInfoRepo.count();
         if (count == 0) {
             LogUtils.getInfoLogger().info("Count is empty");
-            return 0;
+            return responseConstants.FAILED_MESSAGE;
         } else {
-            return count;
+            return responseConstants.SUCCESS_MESSAGE+"\nCount is "+count;
         }
     }
 }
