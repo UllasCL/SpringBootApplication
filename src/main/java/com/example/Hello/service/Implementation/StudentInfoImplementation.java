@@ -2,7 +2,6 @@ package com.example.Hello.service.Implementation;
 
 import com.example.Hello.constants.ResponseConstants;
 import com.example.Hello.dto.StudentInfoDto;
-import com.example.Hello.dto.response.StudentRespondeDto;
 import com.example.Hello.exception.StudentException;
 import com.example.Hello.mapper.StudentInfoDtoStudentInfoMapper;
 import com.example.Hello.model.StudentInfo;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,7 +43,7 @@ public class StudentInfoImplementation implements StudentInfoService {
                 LogUtils.getInfoLogger().info("No result");
                 return null;
             } else {
-                LogUtils.getInfoLogger().info("StudentsInfo found : {}",studentInfoArrayList.toString());
+                LogUtils.getInfoLogger().info("StudentsInfo found : {}", studentInfoArrayList.toString());
                 return studentInfoArrayList.stream()
                         .map(studentInfo1 -> studentInfoDtoStudentInfoMapper.studentInfoToStudentInfoDto(studentInfo1))
                         .collect(Collectors.toList());
@@ -65,7 +65,7 @@ public class StudentInfoImplementation implements StudentInfoService {
             Optional<StudentInfo> studentInfo = studentInfoRepo.findById(id);
             if (studentInfo.isPresent()) {
                 Optional<StudentInfoDto> studentInfoDto = studentInfo.map(studentInfo1 -> studentInfoDtoStudentInfoMapper.studentInfoToStudentInfoDto(studentInfo1));
-                LogUtils.getInfoLogger().info("result found"+studentInfoDto.toString());
+                LogUtils.getInfoLogger().info("result found" + studentInfoDto.toString());
                 return Optional.of(studentInfoDtoStudentInfoMapper.studentInfoToStudentInfoDto(studentInfo.get()));
             } else {
                 LogUtils.getInfoLogger().info("No result");
@@ -114,8 +114,9 @@ public class StudentInfoImplementation implements StudentInfoService {
         } catch (Exception exception) {
             throw new StudentException(exception.getMessage());
         }
-        return "Student info added successfully"+responseConstants.SUCCESS_MESSAGE;
+        return "Student info added successfully" + responseConstants.SUCCESS_MESSAGE;
     }
+
     /**
      * delete student info
      *
@@ -123,14 +124,21 @@ public class StudentInfoImplementation implements StudentInfoService {
      * @return
      */
     @Override
-    public String deleteStudentInfo(Integer id) {
+    public List<StudentInfoDto> deleteStudentInfo(Integer id) {
         try {
-            studentInfoRepo.deleteById(id);
-            LogUtils.getInfoLogger().info("Student deleted");
+            Optional<StudentInfo> studentInfo = studentInfoRepo.findById(id);
+            if (studentInfo.isPresent()) {
+                studentInfoRepo.deleteById(id);
+                LogUtils.getInfoLogger().info("Student deleted {}", id);
+               StudentInfoDto studentInfoDto= studentInfoDtoStudentInfoMapper.studentInfoToStudentInfoDto(studentInfo.get());
+                return new ArrayList<>(Arrays.asList(studentInfoDto));
+            } else {
+                LogUtils.getInfoLogger().info("Student not found {}", id);
+                return new ArrayList<>();
+            }
         } catch (Exception exception) {
             throw new StudentException(exception.getMessage());
         }
-        return responseConstants.SUCCESS_MESSAGE;
     }
 
     /**
@@ -145,7 +153,7 @@ public class StudentInfoImplementation implements StudentInfoService {
             LogUtils.getInfoLogger().info("Count is empty");
             return responseConstants.FAILED_MESSAGE;
         } else {
-            return responseConstants.SUCCESS_MESSAGE+"\nCount is "+count;
+            return responseConstants.SUCCESS_MESSAGE + "\nCount is " + count;
         }
     }
 }

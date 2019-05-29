@@ -15,7 +15,7 @@ public interface StudentInfoService {
 
     String addStudentInfo(StudentInfo studentInfoDto);
 
-    String deleteStudentInfo(Integer id);
+    List<StudentInfoDto> deleteStudentInfo(Integer id);
 
     String count();
 }

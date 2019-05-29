@@ -12,4 +12,7 @@ public class ResponseConstants {
 
     public String INVALID_MESSAGE = "INVALID";
 
+    public String DELETED_MESSAGE = "DELETED SUCCESSFULLY";
+
+
 }

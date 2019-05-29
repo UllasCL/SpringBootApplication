@@ -10,8 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Optional;
 
 
@@ -106,9 +104,21 @@ public class StudentInfoController {
     @ResponseBody
     public Object deleteStudentInfo(@RequestParam Integer id) {
         if (requestValidator.validateId(id)) {
-            return studentInfoService.deleteStudentInfo(id);
+            return
+                    StudentRespondeDto.builder()
+                            .studentInfoDtos(null)
+                            .code(HttpStatus.OK.value())
+                            .status(HttpStatus.OK.toString())
+                            .messages(responseConstants.DELETED_MESSAGE)
+                            .studentInfoDtos(studentInfoService.deleteStudentInfo(id))
+                            .build();
         } else {
-            return Optional.of(responseConstants.FAILED_MESSAGE);
+            return StudentRespondeDto.builder()
+                    .studentInfoDtos(null)
+                    .code(HttpStatus.BAD_REQUEST.value())
+                    .status(HttpStatus.BAD_REQUEST.toString())
+                    .messages(responseConstants.FAILED_MESSAGE)
+                    .build();
         }
     }
 
