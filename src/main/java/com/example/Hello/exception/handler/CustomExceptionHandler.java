@@ -21,12 +21,12 @@ public class CustomExceptionHandler {
     public ResponseEntity handleStudentException(StudentException exception) {
         StudentRespondeDto studentResponseDto = StudentRespondeDto
                 .builder()
-                .code(HttpStatus.OK.value())
-                .status(HttpStatus.OK.toString())
+                .code(HttpStatus.BAD_REQUEST.value())
+                .status(HttpStatus.BAD_REQUEST.toString())
                 .messages(exception.getMessage())
                 .studentInfoDtos(null)
                 .build();
         LogUtils.getErrorLogger().error("Student Exception: {}", exception.getMessage());
-        return new ResponseEntity<>(studentResponseDto, HttpStatus.OK);
+        return new ResponseEntity<>(studentResponseDto, HttpStatus.BAD_REQUEST);
     }
 }
