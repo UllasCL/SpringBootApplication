@@ -2,6 +2,7 @@ package com.example.Hello.controller;
 
 import com.example.Hello.constants.ResponseConstants;
 import com.example.Hello.dto.response.StudentRespondeDto;
+import com.example.Hello.exception.StudentException;
 import com.example.Hello.model.StudentInfo;
 import com.example.Hello.service.StudentInfoService;
 import com.example.Hello.validator.implementation.RequestValidator;
@@ -43,12 +44,10 @@ public class StudentInfoController {
     @RequestMapping(value = "/getAllStudents", method = RequestMethod.GET)
     @ResponseBody
     public Object getAllStudentsInfo() {
-        return studentInfoService.getAllStudentsInfo().isEmpty() ? StudentRespondeDto.builder()
-                .studentInfoDtos(null)
-                .code(HttpStatus.OK.value())
-                .status(HttpStatus.OK.toString())
-                .messages(responseConstants.EMPTY_MESSAGE)
-                .build() : studentInfoService.getAllStudentsInfo();
+        if (studentInfoService.getAllStudentsInfo().isEmpty()) {
+            throw new StudentException(responseConstants.EMPTY_MESSAGE);
+        }
+        else return studentInfoService.getAllStudentsInfo();
     }
 
     /**
@@ -58,19 +57,15 @@ public class StudentInfoController {
     @RequestMapping(value = "/getStudentInfo", method = RequestMethod.GET)
     @ResponseBody
     public Object getStudentInfo(@RequestParam Integer id) {
-        return requestValidator.validateId(id) ? studentInfoService.getStudentInfo(id).isPresent() ? studentInfoService.getStudentInfo(id) :
-                StudentRespondeDto.builder()
-                        .studentInfoDtos(null)
-                        .code(HttpStatus.OK.value())
-                        .status(HttpStatus.OK.toString())
-                        .messages(responseConstants.EMPTY_MESSAGE)
-                        .build() :
-                StudentRespondeDto.builder()
-                        .studentInfoDtos(null)
-                        .code(HttpStatus.BAD_REQUEST.value())
-                        .status(HttpStatus.BAD_REQUEST.toString())
-                        .messages(responseConstants.INVALID_MESSAGE)
-                        .build();
+        if (requestValidator.validateId(id))
+            if (studentInfoService.getStudentInfo(id).isPresent())
+                return studentInfoService.getStudentInfo(id);
+            else {
+                throw new StudentException(responseConstants.EMPTY_MESSAGE);
+            }
+        else {
+            throw new StudentException(responseConstants.FAILED_MESSAGE);
+        }
     }
 
     /**
